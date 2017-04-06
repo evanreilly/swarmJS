@@ -1,0 +1,16 @@
+{
+  "uploadOnSave": true,
+  "useAtomicWrites": false,
+  "deleteLocal": false,
+  "hostname": "evanreilly.com",
+  "port": "22",
+  "target": "public_html/swarmzombie",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "er",
+  "password": "Evanis19",
+  "watch": [],
+  "transport": "scp"
+}
