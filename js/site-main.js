@@ -23,10 +23,10 @@
     ctx = canvas.getContext('2d');
 
     points = [];
-    for (var x = 0; x < width; x = x + width / 5) {
-      for (var y = 0; y < height; y = y + height / 5) {
-        var px = x + Math.random() * width / 5;
-        var py = y + Math.random() * height / 5;
+    for (var x = 0; x < width; x = x + width / 20) {
+      for (var y = 0; y < height; y = y + height / 20) {
+        var px = x + Math.random() * width / 20;
+        var py = y + Math.random() * height / 20;
         var p = {
           x: px,
           originX: px,
@@ -80,7 +80,7 @@
     window.addEventListener('resize', resize);
   }
 
-  /*function mouseMove(e) {
+  function mouseMove(e) {
     var posx = posy = 0;
     if (e.pageX || e.pageY) {
       posx = e.pageX;
@@ -91,7 +91,7 @@
     }
     target.x = posx;
     target.y = posy;
-  }*/
+  }
 
   function scrollCheck() {
     if (document.body.scrollTop > height) animateHeader = false;
