@@ -1,5 +1,5 @@
 var width, height, largeHeader, canvas, ctx, points, center, animateHeader = true;
-console.log("was called");
+
 
 width = window.innerWidth;
 height = window.innerHeight;
@@ -25,9 +25,10 @@ function Line(x1, y1, x2, y2) {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
-        ctx.strokeStyle = "#FF0000";
+        //ctx.strokeStyle = "#FF0000";
+        ctx.strokeStyle = "rgba(156,217,249,0.5)";
         ctx.stroke();
-        
+
     }
 }
 
@@ -45,9 +46,23 @@ var bee = {
     x2: randomX2,
     y2: randomY2
 }
+initAnimation();
 
-function draw() {
-line.draw();
-console.log("loop");
+function initAnimation(){
+  animate();
 }
-setInterval(draw, 10);
+
+
+
+
+function animate(){
+  line.draw();
+  requestAnimationFrame(animate);
+}
+
+
+// function draw() {
+// line.draw();
+// //console.log("loop");
+// }
+// setInterval(draw, 10);
