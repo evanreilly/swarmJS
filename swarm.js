@@ -7,9 +7,7 @@ center = {
     x: width / 2,
     y: height / 2
 };
-//Get and Resize the background
-largeHeader = document.getElementById('large-header');
-largeHeader.style.height = height + 'px';
+
 //Get and resize the canvas
 canvas = document.getElementById('demo-canvas');
 canvas.width = width;
@@ -33,7 +31,7 @@ function Point2d(x1, y1) {
         return magnitude;
     }
     this.distance = function(point2d) {
-        var distance = Math.sqrt(Math.pow(this.x1 + point2d.getX1(), 2) + Math.pow(this.y1 + point2d.getY1(), 2));
+        var distance = Math.sqrt(Math.pow(this.x1 - point2d.getX1(), 2) + Math.pow(this.y1 - point2d.getY1(), 2));
         return distance;
     }
     this.add = function(point2d) {
@@ -183,40 +181,17 @@ function Bee(location, moveVector) {
 
     }
     this.seekTarget = function() {
-        var distance = this.getSpeedByProximity();
-        //console.log(distance);
+        var distance = 5
         var moveVector = this.wanderingDirection();
-        //var moveVector = this.getDirectionToTarget();
-        //console.log(moveVector);
         moveVector.multiply(distance);
-        //console.log(this.line);
         this.move(moveVector);
     }
 
 }
 
 
-function initAnimation() {
-    animate();
-}
-
-var randomX1 = center.x - (width / 40) + Math.random() * width / 20
-var randomY1 = center.y - (width / 40) + Math.random() * width / 20
-var randomX2 = center.x - (width / 40) + Math.random() * width / 20
-var randomY2 = center.y - (width / 40) + Math.random() * width / 20
-//var line = new Line(randomX1, randomY1, randomX2, randomY2);
-
-//line.setColor("rgba(156,200,249,0.5)")
-var point1 = new Point2d(0, 0);
-var point2 = new Point2d(1, 2);
-
-var bee = new Bee(new Point2d(200, 200), new Point2d(180, 180));
-bee.setColor("rgba(156,100,249,0.5)");
-bee.setTarget(new Point2d(200, 200));
 var mouseX = width / 2;
 var mouseY = width / 2;
-
-
 function showCoords(event) {
     mouseX = event.clientX;
     mouseY = event.clientY;
@@ -227,24 +202,44 @@ function showCoords(event) {
 function clearCoor() {
     //console.log("mouse out")
 }
+var bees = [];
+function initBees(){
+  //to be written
+}
 
 
+var bee = new Bee(new Point2d(200, 200), new Point2d(180, 180));
+bee.setColor("rgba(255,255,255,1)");
+bee.setTarget(new Point2d(200, 200));
+bees.push(bee);
+
+function updateColorByProximity(){
+  for (var i = 0; i<bees.length;i++){
+    beeCoord = bees[i]['location'];
+    mouseCoord = new Point2d(mouseX,mouseY);
+    distance = beeCoord.distance(mouseCoord);
+    heat = parseInt(Math.min(255,distance/4));
+    console.log(mouseCoord);
+    //console.log(heat);
+    //console.log(mouseX+","+mouseY);
+    bee.setColor("rgba(255,"+heat+","+heat+",1)");
+
+  }
+}
+
+
+function initAnimation() {
+    animate();
+}
 
 initAnimation();
 
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     bee.setTarget(new Point2d(mouseX, mouseY));
+    updateColorByProximity();
     bee.draw();
     bee.seekTarget();
 
     requestAnimationFrame(animate);
 }
-
-
-
-// function draw() {
-// line.draw();
-// //console.log("loop");
-// }
-// setInterval(draw, 10);
