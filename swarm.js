@@ -168,8 +168,8 @@ function Bee(location, moveVector) {
         return direction;
     }
     this.wanderingDirection = function() {
-        var factor = 0.1
-        var randomFraction = factor * Math.random() + 0.1;
+        var factor = 0.05
+        var randomFraction = factor * Math.random()+0.05;
         var target = this.getDirectionToTarget();
         var direction = this.getDirection();
         direction.multiply(1 - randomFraction);
@@ -181,14 +181,13 @@ function Bee(location, moveVector) {
 
     }
     this.seekTarget = function() {
-        var distance = 2
+        var distance = 3
         var moveVector = this.wanderingDirection();
         moveVector.multiply(distance);
         this.move(moveVector);
     }
 
 }
-
 
 var mouseX = width / 2;
 var mouseY = width / 2;
@@ -201,15 +200,17 @@ function showCoords(event) {
 }
 
 function clearCoor() {
-    //console.log("mouse out")
 }
 var bees = [];
 var numBees = 50;
 
 function initBees() {
     for (var i = 0; i < numBees; i++) {
-
-        var bee = new Bee(new Point2d(0,0), new Point2d(10,10));
+        var initialLocation = new Point2d(parseInt(Math.random()*width),parseInt(Math.random()*height))
+        var initialMove = new Point2d(0,0);
+        initialMove.add(initialLocation);
+        initialMove.add(new Point2d(5,5));
+        var bee = new Bee(initialLocation, initialMove);
         bees.push(bee);
         console.log("bee");
 
@@ -227,22 +228,12 @@ function updateBees(){
   }
 }
 
-
-
-// var bee = new Bee(new Point2d(200, 200), new Point2d(180, 180));
-// bee.setColor("rgba(255,255,255,1)");
-// bee.setTarget(new Point2d(200, 200));
-// bees.push(bee);
-
 function updateColorByProximity() {
     for (var i = 0; i < bees.length; i++) {
         beeCoord = bees[i]['location'];
         mouseCoord = new Point2d(mouseX, mouseY);
         distance = beeCoord.distance(mouseCoord);
         heat = parseInt(Math.min(255, distance / 4));
-        //console.log(mouseCoord);
-        //console.log(heat);
-        //console.log(mouseX+","+mouseY);
         bees[i].setColor("rgba(255," + heat + "," + heat + ",1)");
 
     }
