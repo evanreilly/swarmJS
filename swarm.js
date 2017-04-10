@@ -7,9 +7,7 @@ center = {
     x: width / 2,
     y: height / 2
 };
-//Get and Resize the background
-largeHeader = document.getElementById('large-header');
-largeHeader.style.height = height + 'px';
+
 //Get and resize the canvas
 canvas = document.getElementById('demo-canvas');
 canvas.width = width;
@@ -33,7 +31,7 @@ function Point2d(x1, y1) {
         return magnitude;
     }
     this.distance = function(point2d) {
-        var distance = Math.sqrt(Math.pow(this.x1 + point2d.getX1(), 2) + Math.pow(this.y1 + point2d.getY1(), 2));
+        var distance = Math.sqrt(Math.pow(this.x1 - point2d.getX1(), 2) + Math.pow(this.y1 - point2d.getY1(), 2));
         return distance;
     }
     this.add = function(point2d) {
@@ -74,6 +72,7 @@ function Line(x1, y1, x2, y2) {
     this.draw = function() {
         ctx.beginPath();
         ctx.moveTo(this.x1, this.y1);
+        ctx.lineWidth=3;
         ctx.lineTo(this.x2, this.y2);
         //ctx.strokeStyle = "#FF0000";
         ctx.strokeStyle = this.strokeStyle;
@@ -90,6 +89,18 @@ function Line(x1, y1, x2, y2) {
     }
     this.setY2 = function(y2) {
         this.y2 = y2;
+    }
+    this.getX1 = function(){
+      return this.x1;
+    }
+    this.getX2 = function(){
+      return this.x2;
+    }
+    this.getY1 = function(){
+      return this.y1;
+    }
+    this.getY2 = function(){
+      return this.y2;
     }
     this.setColor = function(color) {
         this.strokeStyle = color;
@@ -124,27 +135,29 @@ function Bee(location, moveVector) {
         this.line.draw();
     }
     this.move = function(moveVector) {
-        this.line.setX1(this.location.getX1());
-        this.line.setY1(this.location.getY1());
-        location.add(moveVector);
-
-        this.line.setX2(this.location.getX1());
-        this.line.setY2(this.location.getY1());
+        var beeScalar = 6
+        var direction = this.getDirection();
+        this.line.setX1(this.location.getX1()-direction.getX1()*beeScalar);
+        this.line.setY1(this.location.getY1()-direction.getY1()*beeScalar);
+        this.location.add(moveVector);
+        /*Makes the bee larger than the move vector, so we can have bigger
+        but slower vector bees*/
+        this.line.setX2(this.location.getX1()+moveVector.getX1()*beeScalar);
+        this.line.setY2(this.location.getY1()+moveVector.getY1()*beeScalar);
     }
     this.getDirection = function() {
-        var lastLocation = new Point2d(line.getX1(), line.getY1());
-        var direction = this.location;
-        direction.subtract(lastLocation);
+        var direction = new Point2d(this.line['x2']-this.line['x1'], this.line['y2']-this.line['y1']);
         direction.normalize();
+
         return direction;
     }
     this.getSpeedByProximity = function() {
         var proximitySpeed = 0;
-        var minimumSpeed = 15;
+        var minimumSpeed = 5;
         var startPoint = this.location;
         var endPoint = this.target;
-        var proximitySpeed = startPoint.distance(endPoint) * (0.3 * Math.random());
-
+        var proximitySpeed = startPoint.distance(endPoint)/5 * Math.random();
+        console.log(proximitySpeed);
         return Math.min(minimumSpeed, proximitySpeed);
     }
     this.getDirectionToTarget = function() {
@@ -154,41 +167,31 @@ function Bee(location, moveVector) {
 
         return direction;
     }
+    this.wanderingDirection = function(){
+      var factor = 0.05
+      var randomFraction = factor*Math.random()+0.1;
+      var target = this.getDirectionToTarget();
+      var direction = this.getDirection();
+      direction.multiply(1-randomFraction);
+      target.multiply(randomFraction);
+      direction.add(target);
+      direction.normalize();
+      //console.log(direction);
+      return direction;
 
+    }
     this.seekTarget = function() {
-        var distance = this.getSpeedByProximity();
-        //console.log(distance);
-        var moveVector = this.getDirectionToTarget()
-        //console.log(moveVector);
+        var distance = 5
+        var moveVector = this.wanderingDirection();
         moveVector.multiply(distance);
-        //console.log(this.line);
         this.move(moveVector);
     }
 
 }
 
 
-function initAnimation() {
-    animate();
-}
-
-var randomX1 = center.x - (width / 40) + Math.random() * width / 20
-var randomY1 = center.y - (width / 40) + Math.random() * width / 20
-var randomX2 = center.x - (width / 40) + Math.random() * width / 20
-var randomY2 = center.y - (width / 40) + Math.random() * width / 20
-//var line = new Line(randomX1, randomY1, randomX2, randomY2);
-
-//line.setColor("rgba(156,200,249,0.5)")
-var point1 = new Point2d(0, 0);
-var point2 = new Point2d(1, 2);
-
-var bee = new Bee(new Point2d(200, 200), new Point2d(180, 180));
-bee.setColor("rgba(156,100,249,0.5)");
-bee.setTarget(new Point2d(200, 200));
 var mouseX = width / 2;
 var mouseY = width / 2;
-
-
 function showCoords(event) {
     mouseX = event.clientX;
     mouseY = event.clientY;
@@ -199,24 +202,44 @@ function showCoords(event) {
 function clearCoor() {
     //console.log("mouse out")
 }
+var bees = [];
+function initBees(){
+  //to be written
+}
 
 
+var bee = new Bee(new Point2d(200, 200), new Point2d(180, 180));
+bee.setColor("rgba(255,255,255,1)");
+bee.setTarget(new Point2d(200, 200));
+bees.push(bee);
+
+function updateColorByProximity(){
+  for (var i = 0; i<bees.length;i++){
+    beeCoord = bees[i]['location'];
+    mouseCoord = new Point2d(mouseX,mouseY);
+    distance = beeCoord.distance(mouseCoord);
+    heat = parseInt(Math.min(255,distance/4));
+    console.log(mouseCoord);
+    //console.log(heat);
+    //console.log(mouseX+","+mouseY);
+    bee.setColor("rgba(255,"+heat+","+heat+",1)");
+
+  }
+}
+
+
+function initAnimation() {
+    animate();
+}
 
 initAnimation();
 
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     bee.setTarget(new Point2d(mouseX, mouseY));
+    updateColorByProximity();
     bee.draw();
     bee.seekTarget();
 
     requestAnimationFrame(animate);
 }
-
-
-
-// function draw() {
-// line.draw();
-// //console.log("loop");
-// }
-// setInterval(draw, 10);
