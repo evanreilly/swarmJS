@@ -74,6 +74,7 @@ function Line(x1, y1, x2, y2) {
     this.draw = function() {
         ctx.beginPath();
         ctx.moveTo(this.x1, this.y1);
+        ctx.lineWidth=3;
         ctx.lineTo(this.x2, this.y2);
         //ctx.strokeStyle = "#FF0000";
         ctx.strokeStyle = this.strokeStyle;
@@ -90,6 +91,18 @@ function Line(x1, y1, x2, y2) {
     }
     this.setY2 = function(y2) {
         this.y2 = y2;
+    }
+    this.getX1 = function(){
+      return this.x1;
+    }
+    this.getX2 = function(){
+      return this.x2;
+    }
+    this.getY1 = function(){
+      return this.y1;
+    }
+    this.getY2 = function(){
+      return this.y2;
     }
     this.setColor = function(color) {
         this.strokeStyle = color;
@@ -124,27 +137,29 @@ function Bee(location, moveVector) {
         this.line.draw();
     }
     this.move = function(moveVector) {
-        this.line.setX1(this.location.getX1());
-        this.line.setY1(this.location.getY1());
-        location.add(moveVector);
-
-        this.line.setX2(this.location.getX1());
-        this.line.setY2(this.location.getY1());
+        var beeScalar = 6
+        var direction = this.getDirection();
+        this.line.setX1(this.location.getX1()-direction.getX1()*beeScalar);
+        this.line.setY1(this.location.getY1()-direction.getY1()*beeScalar);
+        this.location.add(moveVector);
+        /*Makes the bee larger than the move vector, so we can have bigger
+        but slower vector bees*/
+        this.line.setX2(this.location.getX1()+moveVector.getX1()*beeScalar);
+        this.line.setY2(this.location.getY1()+moveVector.getY1()*beeScalar);
     }
     this.getDirection = function() {
-        var lastLocation = new Point2d(line.getX1(), line.getY1());
-        var direction = this.location;
-        direction.subtract(lastLocation);
+        var direction = new Point2d(this.line['x2']-this.line['x1'], this.line['y2']-this.line['y1']);
         direction.normalize();
+
         return direction;
     }
     this.getSpeedByProximity = function() {
         var proximitySpeed = 0;
-        var minimumSpeed = 15;
+        var minimumSpeed = 5;
         var startPoint = this.location;
         var endPoint = this.target;
-        var proximitySpeed = startPoint.distance(endPoint) * (0.3 * Math.random());
-
+        var proximitySpeed = startPoint.distance(endPoint)/5 * Math.random();
+        console.log(proximitySpeed);
         return Math.min(minimumSpeed, proximitySpeed);
     }
     this.getDirectionToTarget = function() {
@@ -154,11 +169,24 @@ function Bee(location, moveVector) {
 
         return direction;
     }
+    this.wanderingDirection = function(){
+      var factor = 0.05
+      var randomFraction = factor*Math.random()+0.1;
+      var target = this.getDirectionToTarget();
+      var direction = this.getDirection();
+      direction.multiply(1-randomFraction);
+      target.multiply(randomFraction);
+      direction.add(target);
+      direction.normalize();
+      //console.log(direction);
+      return direction;
 
+    }
     this.seekTarget = function() {
         var distance = this.getSpeedByProximity();
         //console.log(distance);
-        var moveVector = this.getDirectionToTarget()
+        var moveVector = this.wanderingDirection();
+        //var moveVector = this.getDirectionToTarget();
         //console.log(moveVector);
         moveVector.multiply(distance);
         //console.log(this.line);
