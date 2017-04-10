@@ -221,14 +221,19 @@ function updateBees(){
 
     bees[i].setTarget(new Point2d(mouseX, mouseY));
     //console.log(bees[i]['location']['x1'])
+    beeCoord = bees[i]['location'];
+    mouseCoord = new Point2d(mouseX, mouseY);
+    distance = beeCoord.distance(mouseCoord);
+    heat = parseInt(Math.min(255, distance / 4));
+    bees[i].setColor("rgba(255," + heat + "," + heat + ",1)");
     bees[i].seekTarget();
     bees[i].draw();
-    console.log(bees[i]['target']['x1'])
+
 
   }
 }
 
-function updateColorByProximity() {
+/*function updateColorByProximity() {
     for (var i = 0; i < bees.length; i++) {
         beeCoord = bees[i]['location'];
         mouseCoord = new Point2d(mouseX, mouseY);
@@ -237,7 +242,7 @@ function updateColorByProximity() {
         bees[i].setColor("rgba(255," + heat + "," + heat + ",1)");
 
     }
-}
+}*/
 
 
 function initAnimation() {
@@ -251,7 +256,7 @@ function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     updateBees();
-    updateColorByProximity();
+    //updateColorByProximity();
 
 
     requestAnimationFrame(animate);
