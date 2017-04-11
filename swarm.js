@@ -117,8 +117,9 @@ function Bee(location, moveVector) {
     this.line = new Line(location.getX1(), location.getY1(), moveVector.getX1(), moveVector.getY1());
     this.target = new Point2d(0, 0);
     //setters, getters
-    this.setTarget = function(target) {
-        this.target = target; //Point2d
+    this.setTarget = function(x1, y1) {
+        this.target.setX1(x1);
+        this.target.setY1(y1); //Point2d
     }
     this.setColor = function(color) {
         this.line.setColor(color);
@@ -169,7 +170,7 @@ function Bee(location, moveVector) {
     }
     this.wanderingDirection = function() {
         var factor = 0.05
-        var randomFraction = factor * Math.random()+0.05;
+        var randomFraction = factor * Math.random() + 0.05;
         var target = this.getDirectionToTarget();
         var direction = this.getDirection();
         direction.multiply(1 - randomFraction);
@@ -199,38 +200,35 @@ function showCoords(event) {
     //console.log(coor);
 }
 
-function clearCoor() {
-}
+function clearCoor() {}
 var bees = [];
-var numBees = 50;
+var numBees = 200;
 
 function initBees() {
     for (var i = 0; i < numBees; i++) {
-        var initialLocation = new Point2d(parseInt(Math.random()*width),parseInt(Math.random()*height))
-        var initialMove = new Point2d(0,0);
+        var initialLocation = new Point2d(parseInt(Math.random() * width), parseInt(Math.random() * height))
+        var initialMove = new Point2d(0, 0);
         initialMove.add(initialLocation);
-        initialMove.add(new Point2d(5,5));
+        initialMove.add(new Point2d(5, 5));
         var bee = new Bee(initialLocation, initialMove);
         bees.push(bee);
         console.log("bee");
-
     }
 }
-function updateBees(){
-  for (var i = 0; i<bees.length; i++){
 
-    bees[i].setTarget(new Point2d(mouseX, mouseY));
-    //console.log(bees[i]['location']['x1'])
-    beeCoord = bees[i]['location'];
-    mouseCoord = new Point2d(mouseX, mouseY);
-    distance = beeCoord.distance(mouseCoord);
-    heat = parseInt(Math.min(255, distance / 4));
-    bees[i].setColor("rgba(255," + heat + "," + heat + ",1)");
-    bees[i].seekTarget();
-    bees[i].draw();
+function updateBees() {
+    for (var i = 0; i < bees.length; i++) {
 
-
-  }
+        bees[i].setTarget(mouseX, mouseY);
+        //console.log(bees[i]['location']['x1'])
+        beeCoord = bees[i]['location'];
+        mouseCoord = bees[i]['target'];
+        distance = beeCoord.distance(mouseCoord);
+        heat = parseInt(Math.min(255, distance / 4));
+        bees[i].setColor("rgba(255," + heat + "," + heat + ",1)");
+        bees[i].seekTarget();
+        bees[i].draw();
+    }
 }
 
 /*function updateColorByProximity() {
@@ -243,7 +241,6 @@ function updateBees(){
 
     }
 }*/
-
 
 function initAnimation() {
     animate();
